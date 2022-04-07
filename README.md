@@ -30,18 +30,6 @@ import { NgxQueryBuilderModule } from 'ngx-query-builder';
 export class AppModule { }
 ```
 
-You can pass into the `<ngx-qb>` element an initializing filter, but you must at least pass in a dataFieldList to provide the query builder with dataField options. This is the fully custom list that allows you to specify what fields you will be working with. Without providing your own list, the QueryBuilder component ***will not work***.
-
-The dataFieldList is the list of all the dataField dropdown options that you want the user to select from in the first dropdown box. The properties of `text` and `fieldName` are freeform string options, they can be anything that you'd like. Keep in mind that `text` is what the user will see, and `fieldName` is ideally the database column name being referenced, it can however be used however you'd like.
-
-The only restricted field is `type`, it must be one of the types listed in the `IDataField` interface: array | string | number | date | boolean | json. Depending on the type, that will determine what fields are displayed for the condition field. Ex: If you use a type of date or number, you can expect such conditions as greater than, less than, between, or not between.
-
-Depending on the condition specified, you can also get up to 2 value boxes. The second box is reserved for conditions requiring 2 values, such as between or not between A and B.
-
-### Note
-
-The conditions are currently hardcoded but I plan to make
-
 ```ts
 import { Component } from '@angular/core';
 import { Filter, IDataField } from 'ngx-query-builder';
@@ -52,7 +40,6 @@ import { Filter, IDataField } from 'ngx-query-builder';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  // This is the initial filter passed to the component, recommend saving to and filling from local storage as a default for increased functionality.
   filter: Partial<Filter> = {
     filterLevel: 1,
     id: 1,
@@ -108,6 +95,26 @@ export class AppComponent {
   (queryExecuted)="queryExecuted($event)">
 </ngx-qb>
 ```
+
+## Inputs
+
+| Name              | Type                          | Default                   | Description                                       |
+| ----------------- | ----------------------------- | ------------------------- | ------------------------------------------------- |
+| filter            | input - Partial\<Filter>      | TopLevelFilter            | Angular component that will be used               |
+| dataFieldList     | input - IDataField[]          | **none**                  | Example                                  |
+| filterChanged     | output - Filter               | false                     | Show close button                                 |
+| filterReset       | boolean - number              | false                     | Show close button                                 |
+| queryExecuted     | boolean - IElasticFilterGroup | false                     | Show close button                                 |
+
+// This is the initial filter passed to the component, recommend saving to and filling from local storage as a default for increased functionality.
+
+You can pass into the `<ngx-qb>` element an initializing filter, but you must at least pass in a dataFieldList to provide the query builder with dataField options. This is the fully custom list that allows you to specify what fields you will be working with. Without providing your own list, the QueryBuilder component ***will not work***.
+
+The dataFieldList is the list of all the dataField dropdown options that you want the user to select from in the first dropdown box. The properties of `text` and `fieldName` are freeform string options, they can be anything that you'd like. Keep in mind that `text` is what the user will see, and `fieldName` is ideally the database column name being referenced, it can however be used however you'd like.
+
+The only restricted field is `type`, it must be one of the types listed in the `IDataField` interface: array | string | number | date | boolean | json. Depending on the type, that will determine what fields are displayed for the condition field. Ex: If you use a type of date or number, you can expect such conditions as greater than, less than, between, or not between.
+
+Depending on the condition specified, you can also get up to 2 value boxes. The second box is reserved for conditions requiring 2 values, such as between or not between A and B.
 
 ## Angular Conditionals
 

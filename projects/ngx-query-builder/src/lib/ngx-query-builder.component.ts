@@ -75,7 +75,6 @@ export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
     this.filter.condition = this.filterForm.get('condition')?.value;
     this.filter.value = this.filterForm.get('value')?.value;
     this.filter.value2 = this.filterForm.get('value2')?.value;
-    this.filterChanged.emit(this.getFilterValue());
   }
 
   public getFilterValue(): Filter {
@@ -153,13 +152,10 @@ export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public executeQuery(): void {
-    this.queryExecuted.emit(this.prepFilters());
+    this.queryExecuted.emit(this.prepFilters(this.filter));
   }
 
-  public prepFilters(subFilter?: Partial<Filter>): IElasticFilterGroup {
-    if (!subFilter) {
-      subFilter = this.filter;
-    }
+  public prepFilters(subFilter: Partial<Filter>): IElasticFilterGroup {
     let APIFilterObj: IElasticFilterGroup;
     if (subFilter.isGroupTF) {
       APIFilterObj = {

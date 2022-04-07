@@ -1,4 +1,4 @@
-<mat-card class="mt-1 mb-1 pb-0" [ngClass]="{'even': (filter.filterLevel! % 2) === 0, 'child-card': filter.filterLevel! >= 2}">
+<mat-card *ngIf="filter" class="mt-1 mb-1 pb-0" [ngClass]="{'even': (filter.filterLevel! % 2) === 0, 'child-card': filter.filterLevel! >= 2}">
   <div class="row">
     <div *ngIf="filter.isGroupTF" class="col-auto p-0 toggle-column" [attr.and]="filter.clause === 'AND' ? '' : null">
       <div class="row h-100">
