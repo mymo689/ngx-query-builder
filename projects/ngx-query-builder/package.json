@@ -1,6 +1,24 @@
 {
   "name": "ngx-query-builder",
   "version": "0.0.1",
+  "description": "An Angular 13 component designed to quickly and easily create a cascading filter for queries or other rule sets.",
+  "author": "Myles Morrone",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mymo689/ngx-query-builder.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mymo689/ngx-query-builder/issues"
+  },
+  "homepage": "https://github.com/mymo689/ngx-query-builder",
+  "keywords": [
+    "angular",
+    "query",
+    "filter",
+    "component",
+    "ngx"
+  ],
+  "license": "MIT",
   "peerDependencies": {
     "@angular/common": "^13.3.2",
     "@angular/core": "^13.3.2",
@@ -8,6 +26,6 @@
     "@angular/material": "^13.3.2"
   },
   "dependencies": {
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.1"
   }
 }
