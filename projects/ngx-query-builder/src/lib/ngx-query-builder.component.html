@@ -1,0 +1,194 @@
+<mat-card class="mt-1 mb-1 pb-0" [ngClass]="{'even': (filter.filterLevel! % 2) === 0, 'child-card': filter.filterLevel! >= 2}">
+  <div class="row">
+    <div *ngIf="filter.isGroupTF" class="col-auto p-0 toggle-column" [attr.and]="filter.clause === 'AND' ? '' : null">
+      <div class="row h-100">
+        <div class="col-auto">
+          <div class="row h-100 align-items-center">
+            <div class="col">
+              <mat-radio-group [(ngModel)]="filter.clause" (change)="storeFormValues()">
+                <mat-radio-button value="AND">
+                  AND
+                </mat-radio-button>
+                <mat-radio-button value="OR">
+                  OR
+                </mat-radio-button>
+              </mat-radio-group>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-container [formGroup]="filterForm">
+      <div class="col-auto" *ngIf="!filter.isGroupTF">
+        <mat-form-field appearance="fill">
+          <mat-label>Data Field</mat-label>
+          <mat-select formControlName="dataField" (selectionChange)="dataFieldUpdated($event.value)" [compareWith]="compareFn">
+            <mat-option
+              *ngFor="let option of dataFieldList"
+              [value]="option">
+                {{option.text}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-auto" *ngIf="!filter.isGroupTF && filter.dataField">
+        <mat-form-field appearance="fill">
+          <mat-label>Condition</mat-label>
+          <mat-select formControlName="condition" (selectionChange)="conditionUpdated()" [compareWith]="compareFn">
+            <mat-option
+              *ngFor="let option of conditionList"
+              [value]="option">
+                {{option.text}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-auto" *ngIf="!filter.isGroupTF && filter.dataField && filter.condition && filter.condition.staticValue === undefined" [ngSwitch]="filter.dataField?.type">
+        <ng-container *ngSwitchCase="'array'">
+          <mat-form-field appearance="fill">
+            <mat-label>Value</mat-label>
+            <input matInput formControlName="value" (blur)="storeFormValues()" type="text"/>
+          </mat-form-field>
+        </ng-container>
+        <ng-container *ngSwitchCase="'string'">
+          <mat-form-field appearance="fill">
+            <mat-label>Value</mat-label>
+            <input matInput formControlName="value" (blur)="storeFormValues()" type="text"/>
+          </mat-form-field>
+        </ng-container>
+        <ng-container *ngSwitchCase="'number'">
+          <mat-form-field appearance="fill">
+            <mat-label>Value</mat-label>
+            <input matInput formControlName="value" (blur)="storeFormValues()" type="number" class="no-spinners"/>
+          </mat-form-field>
+        </ng-container>
+        <ng-container *ngSwitchCase="'date'">
+          <mat-form-field appearance="fill">
+            <mat-label>{{filter.condition?.usesValue2! ? 'Start Date' : 'Date'}}</mat-label>
+            <input matInput formControlName="value" (blur)="storeFormValues()" type="date"/>
+          </mat-form-field>
+        </ng-container>
+        <ng-container *ngSwitchCase="'boolean'">
+          <mat-form-field appearance="fill">
+            <mat-label>Value</mat-label>
+            <mat-select formControlName="value" (selectionChange)="storeFormValues()">
+              <mat-option [value]="true">
+                True
+              </mat-option>
+              <mat-option [value]="false">
+                False
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </ng-container>
+        <ng-container *ngSwitchCase="'json'">
+          <mat-form-field appearance="fill">
+            <mat-label>Value</mat-label>
+            <input matInput formControlName="value" (blur)="storeFormValues()" type="text"/>
+          </mat-form-field>
+        </ng-container>
+      </div>
+      <div class="col-auto" *ngIf="!filter.isGroupTF && filter.dataField && filter.condition && filter.condition?.usesValue2" [ngSwitch]="filter.dataField?.type">
+        <ng-container *ngSwitchCase="'array'">
+          <mat-form-field appearance="fill">
+            <mat-label>Value 2</mat-label>
+            <input matInput formControlName="value2" (blur)="storeFormValues()" type="text"/>
+          </mat-form-field>
+        </ng-container>
+        <ng-container *ngSwitchCase="'string'">
+          <mat-form-field appearance="fill">
+            <mat-label>Value 2</mat-label>
+            <input matInput formControlName="value2" (blur)="storeFormValues()" type="text"/>
+          </mat-form-field>
+        </ng-container>
+        <ng-container *ngSwitchCase="'number'">
+          <mat-form-field appearance="fill">
+            <mat-label>Value 2</mat-label>
+            <input matInput formControlName="value2" (blur)="storeFormValues()" type="number" class="no-spinners"/>
+          </mat-form-field>
+        </ng-container>
+        <ng-container *ngSwitchCase="'date'">
+          <mat-form-field appearance="fill">
+            <mat-label>End Date</mat-label>
+            <input matInput formControlName="value2" (blur)="storeFormValues()" type="date"/>
+          </mat-form-field>
+        </ng-container>
+        <ng-container *ngSwitchCase="'boolean'">
+          <mat-form-field appearance="fill">
+            <mat-label>Value 2</mat-label>
+            <mat-select formControlName="value" (selectionChange)="storeFormValues()">
+              <mat-option [value]="true">
+                True
+              </mat-option>
+              <mat-option [value]="false">
+                False
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </ng-container>
+        <ng-container *ngSwitchCase="'json'">
+          <mat-form-field appearance="fill">
+            <mat-label>Value 2</mat-label>
+            <input matInput formControlName="value2" (blur)="storeFormValues()" type="text"/>
+          </mat-form-field>
+        </ng-container>
+      </div>
+    </ng-container>
+    <div class="col-auto pb-2">
+      <div class="row justify-content-end align-items-center h-100">
+        <div *ngIf="filter.isGroupTF" class="col-auto">
+          <button mat-stroked-button color="primary" (click)="addFilterToList(false)">
+            Add Rule
+          </button>
+        </div>
+        <div *ngIf="filter.isGroupTF" class="col-auto">
+          <button mat-stroked-button color="accent" (click)="addFilterToList(true)">
+            Add Group
+          </button>
+        </div>
+        <div *ngIf="filter.filterLevel === 1" class="col-auto">
+          <button mat-stroked-button color="warn" (click)="resetFilter()">
+            Reset Entire Filter
+          </button>
+        </div>
+        <div class="col-auto" *ngIf="filter.filterLevel! >= 2">
+          <button mat-stroked-button color="warn" [ngClass]="{'mb-4': !filter.isGroupTF }" (click)="filterDeleted.emit(filter.id)">
+            Delete {{filter.isGroupTF ? 'Group' : 'Rule'}}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="filter.isGroupTF && filter.filters!.length === 0" class="row">
+    &nbsp;
+  </div>
+  <div *ngFor="let filter of filter.filters; let last = last" class="row child-filter-row" [ngStyle]="{'padding-bottom': last ? '14px' : '0px'}">
+    <div class="col-auto p-0">
+      <div class="row h-100">
+        <div class="col-auto content-end p-0">
+          <div [ngClass]="{'v-bar': !last, 'half-v-bar': last}"></div>
+        </div>
+        <div class="col-auto p-0">
+          <div class="row h-100 align-items-center">
+            <div class="h-bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col p-0 mt-2">
+      <ngx-qb
+        [filter]="filter"
+        [dataFieldList]="dataFieldList"
+        (filterChanged)="updateFilter($event)"
+        (filterDeleted)="deleteFilter($event)">
+      </ngx-qb>
+    </div>
+  </div>
+  <div *ngIf="filter.filterLevel === 1" class="row pb-2">
+    <div class="col mb-1">
+      <button mat-stroked-button color="primary" (click)="executeQuery()">
+        Execute Query
+      </button>
+    </div>
+  </div>
+</mat-card>

@@ -2,6 +2,12 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "paths": {
+      "NgxQueryBuilder": [
+        "dist/ngx-query-builder/ngx-query-builder",
+        "dist/ngx-query-builder"
+      ]
+    },
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,

@@ -1,0 +1,81 @@
+// * Bootstrap setup
+.row {
+  margin: 0px;
+}
+
+.content-center {
+  text-align: center;
+}
+
+.content-end {
+  text-align: end;
+}
+
+.child-card, .toggle-column {
+  border: 3px solid #A4A4A4;
+}
+
+.toggle-column {
+  border-radius: 20px;
+  background: linear-gradient(to left, #a9f2a0 100%, transparent 0);
+  background-size: 50% 100%;
+  background-repeat: no-repeat;
+  background-position: 100% 0%;
+  transition: background-position 0.5s;
+
+  &[and] {
+    background-position: 0% 0%;
+  }
+}
+
+mat-card {
+  .even {
+    background-color: #EDF6F0;
+  }
+
+  .filter-error {
+    background-color: rgba(#FF0000, 0.3) !important;
+  }
+}
+
+mat-radio-button ~ mat-radio-button {
+  margin-left: 10px;
+}
+
+::ng-deep mat-radio-button label {
+  width: 65px !important;
+}
+
+::ng-deep mat-radio-button.mat-radio-checked label {
+  font-weight: 600;
+}
+
+::ng-deep mat-radio-button:not(.mat-radio-checked) label {
+  color: rgba(black, 0.5);
+}
+
+.child-filter-row {
+  margin-left: 15px;
+
+  .v-bar {
+    height: 100%;
+    width: 3px;
+    background-color: #A4A4A4;
+  }
+  
+  .half-v-bar {
+    height: calc(50% + 1.5px);
+    width: 3px;
+    background-color: #A4A4A4;
+  }
+  
+  .h-bar {
+    height: 3px;
+    width: 20px;
+    background-color: #A4A4A4;
+  }
+}
+
+.even {
+  background-color: #EDF6F0;
+}
