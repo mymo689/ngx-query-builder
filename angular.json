@@ -125,7 +125,7 @@
               "tsConfig": "projects/ngx-query-builder/tsconfig.lib.json"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "development"
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",

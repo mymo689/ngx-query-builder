@@ -159,10 +159,10 @@
       </div>
     </div>
   </div>
-  <div *ngIf="filter.isGroupTF && filter.filters!.length === 0" class="row">
+  <div *ngIf="filter.isGroupTF && filter.subFilters!.length === 0" class="row">
     &nbsp;
   </div>
-  <div *ngFor="let filter of filter.filters; let last = last" class="row child-filter-row" [ngStyle]="{'padding-bottom': last ? '14px' : '0px'}">
+  <div *ngFor="let filter of filter.subFilters; let last = last" class="row child-filter-row" [ngStyle]="{'padding-bottom': last ? '14px' : '0px'}">
     <div class="col-auto p-0">
       <div class="row h-100">
         <div class="col-auto content-end p-0">

@@ -13,7 +13,7 @@ import { Subscription } from 'rxjs';
 import { Condition } from './models/condition.model';
 import { IDataField } from './models/data-field.model';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ElasticFilterClause, IElasticFilterGroup } from './models/filter-request.model';
+import { ElasticFilterClause, IElasticFilterGroup } from './models/elastic-filter.model';
 
 @Component({
   selector: 'ngx-qb',
@@ -23,20 +23,18 @@ import { ElasticFilterClause, IElasticFilterGroup } from './models/filter-reques
 export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
   private subscriptionList = new Subscription();
 
-  @Input() filter: Partial<Filter> = {
-    filterLevel: 1,
-    id: 1,
-    isGroupTF: true,
-    clause: 'AND',
-    value: null,
-    value2: null,
-    filters: []
-  };
+  // Required Inputs
   @Input() dataFieldList: IDataField[] = [];
 
+  // Optional Inputs
+  @Input() filter: Partial<Filter> = Filter.NewTopLevelFilter;
+  @Input() resetOnUpdate: boolean = false;
+  @Input() maxFilterDepth: number = 10;
+
+  // Outputs
   @Output() filterChanged = new EventEmitter<Filter>();
   @Output() filterDeleted = new EventEmitter<number>();
-  @Output() filterReset = new EventEmitter<any>();
+  @Output() filterReset = new EventEmitter();
   @Output() queryExecuted = new EventEmitter<IElasticFilterGroup>();
 
   public conditionList: Condition[] = [];
@@ -49,9 +47,9 @@ export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
   public filterReady = false;
 
   public ngOnInit(): void {
-    this.filter.filters!.forEach(filter => filter = new Filter(filter));
-    if (this.filter.filters!.length > 1) {
-      this.filter.filters!.sort((a, b) => (a.id! > b.id!) ? 1 : -1);
+    this.filter.subFilters!.forEach(filter => filter = new Filter(filter));
+    if (this.filter.subFilters!.length > 1) {
+      this.filter.subFilters!.sort((a, b) => (a.id! > b.id!) ? 1 : -1);
     }
   }
 
@@ -87,22 +85,22 @@ export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
       condition: this.filter.condition,
       value: this.filter.value,
       value2: this.filter.value2,
-      filters: this.filter.filters
+      subFilters: this.filter.subFilters
     });
   }
 
   public addFilterToList(isGroup: boolean): void {
-    if (this.filter.filterLevel! >= 10) {
-      // ! Limited at 10 levels deep
+    if (this.maxFilterDepth > 0 && this.filter.filterLevel! >= this.maxFilterDepth) {
+      // TODO: emit letting the user know what happened
       return;
     }
     let newId = Date.now();
-    this.filter.filters!.push(new Filter({
+    this.filter.subFilters!.push(new Filter({
       filterLevel: this.filter.filterLevel! + 1,
-      id: this.filter.filters!.some(filter => filter.id === newId) ? newId + Math.floor(Math.random() * 1000) : newId,
+      id: this.filter.subFilters!.some(filter => filter.id === newId) ? newId + Math.floor(Math.random() * 1000) : newId,
       clause: 'AND',
       isGroupTF: isGroup,
-      filters: []
+      subFilters: []
     }));
     this.filterChanged.emit(this.getFilterValue());
   }
@@ -114,23 +112,27 @@ export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
   public dataFieldUpdated(dataField: any): void {
     if (this.filterReady) {
       this.conditionList = Condition.getFilteredCondition(dataField.type);
-      // ! Reset condition, value, & value2 fields on dataField updated
-      // this.filterForm.patchValue({
-      //   condition: null,
-      //   value: null,
-      //   value2: null
-      // });
+      if (this.resetOnUpdate) {
+        // ! Reset condition, value, & value2 fields on dataField updated
+        this.filterForm.patchValue({
+          condition: null,
+          value: null,
+          value2: null
+        });
+      }
       this.storeFormValues();
     }
   }
 
   public conditionUpdated(): void {
     if (this.filterReady) {
-      // ! Reset value & value2 fields on condition updated
-      // this.filterForm.patchValue({
-      //   value: this.filterForm.controls.condition.value.staticValue ?? null,
-      //   value2: null
-      // });
+      if (this.resetOnUpdate) {
+        // ! Reset value & value2 fields on condition updated
+        this.filterForm.patchValue({
+          value: this.filterForm.get('condition')?.value.staticValue ?? null,
+          value2: null
+        });
+      };
       this.storeFormValues();
     }
   }
@@ -141,13 +143,13 @@ export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
 
   public updateFilter(updatedFilter: Filter): void {
     this.storeFormValues();
-    const oldFilterIndex = this.filter.filters!.findIndex(filter => filter.id === updatedFilter.id);
-    this.filter.filters![oldFilterIndex] = {...updatedFilter};
+    const oldFilterIndex = this.filter.subFilters!.findIndex(filter => filter.id === updatedFilter.id);
+    this.filter.subFilters![oldFilterIndex] = {...updatedFilter};
     this.filterChanged.emit(this.getFilterValue());
   }
 
   public deleteFilter(filterID: number): void {
-    this.filter.filters = this.filter.filters!.filter(filter => filter.id !== filterID);
+    this.filter.subFilters = this.filter.subFilters!.filter(filter => filter.id !== filterID);
     this.filterChanged.emit(this.getFilterValue());
   }
 
@@ -155,44 +157,36 @@ export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
     this.queryExecuted.emit(this.prepFilters(this.filter));
   }
 
-  public prepFilters(subFilter: Partial<Filter>): IElasticFilterGroup {
+  public prepFilters(filter: Partial<Filter>): IElasticFilterGroup {
     let APIFilterObj: IElasticFilterGroup;
-    if (subFilter.isGroupTF) {
+    if (filter.isGroupTF) {
       APIFilterObj = {
-        boost: subFilter.boost,
-        slop: subFilter.slop,
+        boost: filter.boost,
+        slop: filter.slop,
         filters: [],
-        clause: ElasticFilterClause[subFilter.clause!]
+        clause: ElasticFilterClause[filter.clause!]
       };
     } else {
       APIFilterObj = {
-        dataField: subFilter.dataField?.fieldName,
-        condition: subFilter.condition?.shortCode,
-        value: subFilter.value,
-        value2: subFilter.value2,
-        boost: subFilter.boost,
-        slop: subFilter.slop,
+        dataField: filter.dataField?.fieldName,
+        condition: filter.condition?.shortCode,
+        value: filter.value,
+        value2: filter.value2,
+        boost: filter.boost,
+        slop: filter.slop,
         filters: [],
         clause: ElasticFilterClause['NA']
       };
     }
-    subFilter.filters?.forEach(filter => {
+    filter.subFilters?.forEach(filter => {
       APIFilterObj.filters.push(this.prepFilters(filter));
     });
     return APIFilterObj;
   }
 
   public resetFilter(): void {
-    this.filter = {
-      filterLevel: 1,
-      id: 1,
-      isGroupTF: true,
-      clause: 'AND',
-      value: null,
-      value2: null,
-      filters: []
-    };
-    this.filterReset.emit(this.filter);
+    this.filter = Filter.NewTopLevelFilter;
+    this.filterReset.emit();
   }
 
   public ngOnDestroy(): void {

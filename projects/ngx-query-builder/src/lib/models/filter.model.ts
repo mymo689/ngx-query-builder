@@ -2,24 +2,35 @@ import { Condition } from './condition.model';
 import { IDataField } from './data-field.model';
 
 export class Filter {
+  public static get NewTopLevelFilter(): Partial<Filter> {
+    return new Filter({
+      filterLevel: 1,
+      id: 1,
+      isGroupTF: true,
+      clause: 'AND',
+      value: null,
+      value2: null,
+      subFilters: []
+    });
+  }
+
   filterLevel!: number;
   id!: number;
-  isGroupTF = true;
+  isGroupTF: boolean = true;
   clause: 'NA' | 'AND' | 'OR' = 'AND';
   dataField?: IDataField;
   condition?: Condition;
   value: any = null;
   value2: any = null;
-  filters: Partial<Filter>[] = [];
-  boost = 1;
-  slop = 5;
+  subFilters: Partial<Filter>[] = [];
+  boost: number = 1;
+  slop: number = 5;
 
   constructor(init?: Partial<Filter>) {
     Object.assign(this, init);
-
-    this.filters.forEach(filter => filter = new Filter(filter));
-    if (this.filters.length > 1) {
-      this.filters.sort((a, b) => (a.id! > b.id!) ? 1 : -1);
+    this.subFilters.forEach(filter => filter = new Filter(filter));
+    if (this.subFilters.length > 1) {
+      this.subFilters.sort((a, b) => (a.id! > b.id!) ? 1 : -1);
     }
   }
 
@@ -33,7 +44,7 @@ export class Filter {
       condition: this.condition,
       value: this.value,
       value2: this.value2,
-      filters: this.filters
+      subFilters: this.subFilters
     });
   }
 }

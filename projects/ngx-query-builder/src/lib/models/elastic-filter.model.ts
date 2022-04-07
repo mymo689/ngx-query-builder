@@ -1,20 +1,3 @@
-import { Filter } from './filter.model';
-
-export interface IFilterRequest {
-  id: number;
-  displayName: string;
-  filter: IFilterRequestFilterObject;
-  publicationIDs: string;
-}
-
-export interface IFilterRequestFilterObject {
-  offset: number;
-  limit: number;
-  sort: string;
-  sortDesc: boolean;
-  filterByGroup: IElasticFilterGroup;
-}
-
 export interface IElasticFilter {
   dataField?: string;
   dataFields?: string[];
