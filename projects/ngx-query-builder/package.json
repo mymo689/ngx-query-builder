@@ -1,6 +1,6 @@
 {
   "name": "ngx-query-builder",
-  "version": "0.0.9",
+  "version": "1.0.0",
   "description": "The NgxQueryBuilder is an importable Angular 13 component designed to quickly and easily create a cascading filter for queries or other rule sets.",
   "author": "Myles Morrone",
   "repository": {
