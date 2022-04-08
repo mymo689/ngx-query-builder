@@ -36,7 +36,7 @@
           <mat-label>Condition</mat-label>
           <mat-select formControlName="condition" (selectionChange)="conditionUpdated()" [compareWith]="compareFn">
             <mat-option
-              *ngFor="let option of conditionList"
+              *ngFor="let option of currentConditionList"
               [value]="option">
                 {{option.text}}
             </mat-option>
@@ -179,8 +179,12 @@
       <ngx-qb
         [filter]="filter"
         [dataFieldList]="dataFieldList"
+        [maxFilterDepth]="maxFilterDepth"
+        [overrideConditionList]="overrideConditionList"
+        [newConditionList]="newConditionList"
         (filterChanged)="updateFilter($event)"
-        (filterDeleted)="deleteFilter($event)">
+        (filterDeleted)="deleteFilter($event)"
+        (maxDepthReached)="maxDepthReached.emit()">
       </ngx-qb>
     </div>
   </div>
@@ -190,5 +194,8 @@
         Execute Query
       </button>
     </div>
+  </div>
+  <div class="row">
+    v0.0.9
   </div>
 </mat-card>

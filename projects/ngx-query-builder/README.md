@@ -106,7 +106,8 @@ export class AppComponent {
 | maxFilterDepth    | input - number               | 10                        | False    | Maximum amount of children filters allowed before preventing another layer from being created |
 | filterChanged     | output - Filter              | N/A                       | N/A      | EventEmitter that returns the new value of the filter (Filter) every time a change occurs |
 | filterReset       | output - void                | N/A                       | N/A      | EventEmitter that returns the                      |
-| queryExecuted     | output - IElasticFilterGroup | N/A                       | N/A      | Show close button                                  |
+| queryExecuted     | output - IElasticFilterGroup | N/A                       | N/A      | EventEmitter that returns the value of the entire query filter                                 |
+| maxDepthReached  | output - void                | N/A                       | N/A      | EventEmitter that informs the user that the max allowable depth has been reached                               |
 
 You can pass into the `<ngx-qb>` element an initializing filter, but you must at least pass in a dataFieldList to provide the query builder with dataField options. This is the fully custom list that allows you to specify what fields you will be working with. Without providing your own list, the QueryBuilder component ***will not do anything***. It will still work, it just...well, will have no fields to choose from.
 
@@ -216,10 +217,10 @@ export enum ElasticFilterClause {
 
 ### Actively Planned Upgrades
 
-- [ ] Create an emitter for the maxFilterDepth exceeded event.
+- [X] Create an emitter for the maxFilterDepth reached event. -- Added v0.0.4: 7 Apr 2022
 - [ ] Provide more detailed instructions for how to install, import, and use the module.
 - [ ] Create a working demo to be hosted online and linked to within the README file. (Stackblitz or otherwise)
-- [ ] Allow for customized condition fields, either adding to the existing list or replacing entirely.
+- [X] Allow for customized condition fields, either adding to the existing list or replacing entirely. -- Added v0.0.9: 8 Apr 2022
 - [ ] Allow for adding to the IDataField type options for customized options. (More than just string, number, boolean, etc)
 - [ ] In accordance with the IDataField types above, allow for custom HTML to be injected for custom type options.
 - [ ] Allow for custom buttons to be passed into the component via [content projection](https://angular.io/guide/content-projection).

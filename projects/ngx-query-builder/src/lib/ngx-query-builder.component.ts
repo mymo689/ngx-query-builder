@@ -15,6 +15,98 @@ import { IDataField } from './models/data-field.model';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ElasticFilterClause, IElasticFilterGroup } from './models/elastic-filter.model';
 
+const _originalConditionList: Condition[] = [
+  {
+    text: 'contains',
+    shortCode: 'cn',
+    usedFor: ['array','string']
+  },
+  {
+    text: 'does not contain',
+    shortCode: 'ncn',
+    usedFor: ['array','string']
+  },
+  {
+    text: 'equal to',
+    shortCode: 'eq',
+    usedFor: ['array','string','number','date','boolean']
+  },
+  {
+    text: 'not equal to',
+    shortCode: 'neq',
+    usedFor: ['array','string','number','date','boolean']
+  },
+  {
+    text: 'greater than',
+    shortCode: 'gt',
+    usedFor: ['number','date']
+  },
+  {
+    text: 'less than',
+    shortCode: 'lt',
+    usedFor: ['number','date']
+  },
+  {
+    text: 'greater than or equal',
+    shortCode: 'gte',
+    usedFor: ['number','date']
+  },
+  {
+    text: 'less than or equal',
+    shortCode: 'lte',
+    usedFor: ['number','date']
+  },
+  {
+    text: 'empty',
+    shortCode: 'em',
+    usedFor: ['array','string','date'],
+    staticValue: ''
+  },
+  {
+    text: 'not empty',
+    shortCode: 'nem',
+    usedFor: ['array','string','date'],
+    staticValue: ''
+  },
+  {
+    text: 'between',
+    shortCode: 'bt',
+    usedFor: ['number','date'],
+    usesValue2: true
+  },
+  {
+    text: 'not between',
+    shortCode: 'nbt',
+    usedFor: ['number','date'],
+    usesValue2: true
+  },
+  {
+    text: 'query string',
+    shortCode: 'qs',
+    usedFor: ['array','string']
+  },
+  {
+    text: 'starts with',
+    shortCode: 'st',
+    usedFor: ['string']
+  },
+  {
+    text: 'ends with',
+    shortCode: 'ew',
+    usedFor: ['string']
+  },
+  {
+    text: 'phrase match',
+    shortCode: 'mmp',
+    usedFor: ['string']
+  },
+  {
+    text: 'regex',
+    shortCode: 'rgx',
+    usedFor: ['string']
+  }
+];
+
 @Component({
   selector: 'ngx-qb',
   templateUrl: 'ngx-query-builder.component.html',
@@ -30,14 +122,18 @@ export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
   @Input() filter: Partial<Filter> = Filter.NewTopLevelFilter;
   @Input() resetOnUpdate: boolean = false;
   @Input() maxFilterDepth: number = 10;
+  @Input() overrideConditionList: boolean = false;
+  @Input() newConditionList: Condition[] = [];
 
   // Outputs
   @Output() filterChanged = new EventEmitter<Filter>();
   @Output() filterDeleted = new EventEmitter<number>();
   @Output() filterReset = new EventEmitter();
   @Output() queryExecuted = new EventEmitter<IElasticFilterGroup>();
+  @Output() maxDepthReached = new EventEmitter();
 
-  public conditionList: Condition[] = [];
+  private fullConditionList: Condition[] = [];
+  public currentConditionList: Condition[] = [];
   public filterForm = new FormGroup({
     dataField: new FormControl(null, [Validators.required]),
     condition: new FormControl(null, [Validators.required]),
@@ -54,9 +150,13 @@ export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public ngOnChanges(changes: SimpleChanges): void {
-    if (changes['filter']?.firstChange) {
+    // ? If dataFieldList is found, all inputs have arrived
+    if (changes['dataFieldList']?.firstChange) {
+      this.fullConditionList = this.overrideConditionList
+        ? [...this.newConditionList].sort((a, b) => a.text > b.text ? 1 : 0)
+        : [..._originalConditionList, ...this.newConditionList].sort((a, b) => a.text > b.text ? 1 : 0)
       if (this.filter.dataField) {
-        this.conditionList = Condition.getFilteredCondition(this.filter.dataField.type);
+        this.currentConditionList = this.getFilteredCondition(this.filter.dataField.type);
       }
       this.filterForm.patchValue({
         dataField: changes['dataField']?.currentValue ?? this.filter.dataField,
@@ -66,6 +166,12 @@ export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
       });
       this.filterReady = true;
     }
+  }
+
+  private getFilteredCondition(usedForType?: string): Condition[] {
+    return usedForType
+      ? this.fullConditionList.filter(condition => condition.usedFor.includes(usedForType))
+      : this.fullConditionList;
   }
 
   public storeFormValues(): void {
@@ -90,8 +196,8 @@ export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public addFilterToList(isGroup: boolean): void {
-    if (this.maxFilterDepth > 0 && this.filter.filterLevel! >= this.maxFilterDepth) {
-      // TODO: emit letting the user know what happened
+    if (isGroup && this.maxFilterDepth > 0 && this.filter.filterLevel! >= this.maxFilterDepth) {
+      this.maxDepthReached.emit();
       return;
     }
     let newId = Date.now();
@@ -111,7 +217,7 @@ export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
 
   public dataFieldUpdated(dataField: any): void {
     if (this.filterReady) {
-      this.conditionList = Condition.getFilteredCondition(dataField.type);
+      this.currentConditionList = this.getFilteredCondition(dataField.type);
       if (this.resetOnUpdate) {
         // ! Reset condition, value, & value2 fields on dataField updated
         this.filterForm.patchValue({
