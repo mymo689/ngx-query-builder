@@ -179,6 +179,7 @@ export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
     this.filter.condition = this.filterForm.get('condition')?.value;
     this.filter.value = this.filterForm.get('value')?.value;
     this.filter.value2 = this.filterForm.get('value2')?.value;
+    this.filterChanged.emit(this.getFilterValue());
   }
 
   public getFilterValue(): Filter {

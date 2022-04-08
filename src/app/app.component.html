@@ -1,7 +1,10 @@
 <ngx-qb
-  [filter]="filter"
   [dataFieldList]="dataFieldList"
+  [maxFilterDepth]="0"
+  [overrideConditionList]="false"
+  [newConditionList]="newConditionList"
   (filterChanged)="filterChanged($event)"
-  (filterReset)="filterReset($event)"
-  (queryExecuted)="queryExecuted($event)">
+  (filterReset)="filterReset()"
+  (queryExecuted)="queryExecuted($event)"
+  (maxDepthReached)="maxDepthReached()">
 </ngx-qb>

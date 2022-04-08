@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Filter, IDataField } from 'ngx-query-builder';
+import { Condition, Filter, IDataField, IElasticFilterGroup } from 'ngx-query-builder';
 
 @Component({
   selector: 'ngx-qb-root',
@@ -16,6 +16,12 @@ export class AppComponent {
     value2: null,
     subFilters: []
   };
+  newConditionList: Condition[] = [{
+    text: 'Test Condition',
+    shortCode: 'tst',
+    usedFor: ['string','date'],
+    usesValue2: true
+  }];
   dataFieldList: IDataField[] = [
     {
       text: 'Author',
@@ -39,15 +45,19 @@ export class AppComponent {
     }
   ]
 
-  filterChanged(x: any): void {
-    console.log('FC', x);
+  public filterChanged(filter: Filter): void {
+    console.log('FC', filter);
   }
 
-  filterReset(x: any): void {
-    console.log('FR', x);
+  public filterReset(): void {
+    console.log('FR');
   }
 
-  queryExecuted(x: any): void {
-    console.log('QE', x);
+  public queryExecuted(filterGroup: IElasticFilterGroup): void {
+    console.log('QE', filterGroup);
+  }
+
+  public maxDepthReached(): void {
+    console.log('MDR');
   }
 }

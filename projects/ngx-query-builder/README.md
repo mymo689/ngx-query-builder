@@ -1,5 +1,9 @@
 # NgxQueryBuilder
 
+## Demo
+
+[Stackblitz](https://ngx-query-builder.stackblitz.io)
+
 ## Overview
 
 The NgxQueryBuilder `(ngx-qb)` is an importable Angular 13 component designed to quickly and easily create a cascading filter for queries or other rule sets. It was modeled after the [jQuery QueryBuilder](https://querybuilder.js.org/) to be a more Angular focused and purpose-built solution.
@@ -47,8 +51,28 @@ export class AppComponent {
     clause: 'AND',
     value: null,
     value2: null,
-    filters: []
+    subFilters: [
+      {
+        boost: 1,
+        clause: 'AND',
+        condition: {text: 'contains', shortCode: 'cn', usedFor: ['array', 'string']},
+        dataField: {text: 'Author', type: 'string', fieldName: 'author'},
+        filterLevel: 2,
+        id: 1649459442150,
+        isGroupTF: false,
+        slop: 5,
+        subFilters: [],
+        value: 'Smith',
+        value2: null,
+      }
+    ]
   };
+  newConditionList: Condition[] = [{
+    text: 'Test Condition',
+    shortCode: 'tst',
+    usedFor: ['string','date'],
+    usesValue2: true
+  }];
   dataFieldList: IDataField[] = [
     {
       text: 'Author',
@@ -72,16 +96,20 @@ export class AppComponent {
     }
   ]
 
-  public filterChanged(event: any): void {
-    console.log('FC', event);
+  public filterChanged(filter: Filter): void {
+    console.log('FC', filter);
   }
 
   public filterReset(): void {
     console.log('FR');
   }
 
-  public queryExecuted(event: any): void {
-    console.log('QE', event);
+  public queryExecuted(filterGroup: IElasticFilterGroup): void {
+    console.log('QE', filterGroup);
+  }
+
+  public maxDepthReached(): void {
+    console.log('MDR');
   }
 }
 ```
@@ -90,24 +118,31 @@ export class AppComponent {
 <ngx-qb
   [filter]="filter"
   [dataFieldList]="dataFieldList"
+  [maxFilterDepth]="0"
+  [overrideConditionList]="false"
+  [newConditionList]="newConditionList"
   (filterChanged)="filterChanged($event)"
-  (filterReset)="filterReset($event)"
-  (queryExecuted)="queryExecuted($event)">
+  (filterReset)="filterReset()"
+  (queryExecuted)="queryExecuted($event)"
+  (maxDepthReached)="maxDepthReached()">
 </ngx-qb>
 ```
 
 ## Inputs
 
-| Name              | Type                         | Default                   | Req.     | Description                                        |
-| ----------------- | ---------------------------- | ------------------------- | -------- | -------------------------------------------------- |
-| filter            | input - Partial\<Filter>     | Filter.NewTopLevelFilter  | False    | This is the initial filter passed to the component, if the default is not preferred |
-| dataFieldList     | input - IDataField[]         | **none**                  | **True** | Required input for what data fields the query builder should provide the user as options in the first dropdown selector |
-| resetOnUpdate     | input - boolean              | false                     | False    | Determines whether resetting a field also resets the properties after that field (dataField => condition => value & value2) |
-| maxFilterDepth    | input - number               | 10                        | False    | Maximum amount of children filters allowed before preventing another layer from being created |
-| filterChanged     | output - Filter              | N/A                       | N/A      | EventEmitter that returns the new value of the filter (Filter) every time a change occurs |
-| filterReset       | output - void                | N/A                       | N/A      | EventEmitter that returns the                      |
-| queryExecuted     | output - IElasticFilterGroup | N/A                       | N/A      | EventEmitter that returns the value of the entire query filter                                 |
-| maxDepthReached  | output - void                | N/A                       | N/A      | EventEmitter that informs the user that the max allowable depth has been reached                               |
+| Name                  | Type                         | Default                   | Req.     | Description |
+| --------------------- | ---------------------------- | ------------------------- | -------- | ----------- |
+| filter                | input - Partial\<Filter>     | Filter.NewTopLevelFilter  | False    | This is the initial filter passed to the component, if the default is not preferred |
+| dataFieldList         | input - IDataField[]         | **none**                  | **True** | Required input for what data fields the query builder should provide the user as options in the first dropdown selector |
+| resetOnUpdate         | input - boolean              | false                     | False    | Determines whether resetting a field also resets the properties after that field (dataField => condition => value & value2) |
+| maxFilterDepth        | input - number               | 10                        | False    | Maximum amount of children filters allowed before preventing another layer from being created, provide 0 for infinite depth (will look like trash at around depth 20, depending on screen size) |
+| overrideConditionList | input - boolean              | false                     | False    | If true, the original condition list will be discarded and only the newConditionList will be used |
+| newConditionList      | input - Condition[]          | []                        | False    | List of new conditions for the query builder component to use either in conjunction with or in place of the original condition list |
+| filterChanged         | output - Filter              | N/A                       | N/A      | EventEmitter that returns the new value of the filter (Filter) every time a change occurs |
+| filterDeleted         | output - number              | N/A                       | N/A      | EventEmitter that returns the value of any deleted filters (internally used) |
+| filterReset           | output - void                | N/A                       | N/A      | EventEmitter that returns nothing, merely informs the listener that the filter was reset |
+| queryExecuted         | output - IElasticFilterGroup | N/A                       | N/A      | EventEmitter that returns the value of the entire query filter for API consumption |
+| maxDepthReached       | output - void                | N/A                       | N/A      | EventEmitter that informs the user that the max allowable depth has been reached |
 
 You can pass into the `<ngx-qb>` element an initializing filter, but you must at least pass in a dataFieldList to provide the query builder with dataField options. This is the fully custom list that allows you to specify what fields you will be working with. Without providing your own list, the QueryBuilder component ***will not do anything***. It will still work, it just...well, will have no fields to choose from.
 
@@ -117,7 +152,7 @@ The only restricted field is `type`, it must be one of the types listed in the `
 
 Depending on the condition specified, you can also get up to 2 value boxes. The second box is reserved for conditions requiring 2 values, such as between or not between A and B.
 
-## Custom Models
+## Custom Included Models
 
 ### Filter
 
@@ -199,9 +234,9 @@ export enum ElasticFilterClause {
 
 ## Angular Conditionals
 
-| ngx-qb  | Angular   |
-| ------- | --------- |
-| 1.0.0   | >= 13.x   |
+| ngx-qb   | Angular   |
+| -------- | --------- |
+| ^1.0.0   | >= 13.x   |
 
 ## Non-included Dependencies
 
@@ -219,7 +254,7 @@ export enum ElasticFilterClause {
 
 - [X] Create an emitter for the maxFilterDepth reached event. -- Added v0.0.4: 7 Apr 2022
 - [ ] Provide more detailed instructions for how to install, import, and use the module.
-- [ ] Create a working demo to be hosted online and linked to within the README file. (Stackblitz or otherwise)
+- [X] Create a working [demo](#demo) to be hosted online and linked to within the README file. (Stackblitz or otherwise) -- Added v1.0.1: 8 Apr 2022
 - [X] Allow for customized condition fields, either adding to the existing list or replacing entirely. -- Added v0.0.9: 8 Apr 2022
 - [ ] Allow for adding to the IDataField type options for customized options. (More than just string, number, boolean, etc)
 - [ ] In accordance with the IDataField types above, allow for custom HTML to be injected for custom type options.
@@ -248,7 +283,7 @@ This is a brand new component as of 6 April 2022, no FAQs yet!
 
 ## License
 
-**MIT License** - All parties who obtain a copy of the software and associated files are granted the right to use, copy, modify, merge, distribute, publish, sublicense, and sell copies of the software.
+**[MIT License](https://github.com/mymo689/ngx-query-builder/blob/dev/projects/ngx-query-builder/LICENSE)** - All parties who obtain a copy of the software and associated files are granted the right to use, copy, modify, merge, distribute, publish, sublicense, and sell copies of the software.
 
 ---
 
