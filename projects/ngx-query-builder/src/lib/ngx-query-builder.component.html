@@ -188,14 +188,14 @@
       </ngx-qb>
     </div>
   </div>
-  <div *ngIf="filter.filterLevel === 1" class="row pb-2">
+  <div *ngIf="filter.filterLevel === 1" class="row pb-2 justify-content-between">
     <div class="col mb-1">
       <button mat-stroked-button color="primary" (click)="executeQuery()">
         Execute Query
       </button>
     </div>
-  </div>
-  <div class="row">
-    v0.0.9
+    <div class="col-auto">
+      v0.0.9
+    </div>
   </div>
 </mat-card>
