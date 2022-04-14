@@ -170,17 +170,17 @@ class Filter {
     });
   }
 
-  filterLevel: number; // Ensures the depth doesn't exceed 10 (inception limit exceeded); Top level **MUST** start at 1
-  id: number; // Used to sort filters according to creation date => id = Date.now()
-  isGroupTF: boolean; // Determines whether the current filter is a rule or rule set (AND/OR)
+  filterLevel: number; // Ensures the depth doesn't exceed the maxFilterDepth (inception limit exceeded); Top level **MUST** start at 1
+  id: number; // Used to sort filters according to creation date => id = Date.now() when created
+  isGroupTF: boolean; // Determines whether the current filter is a rule or a rule set (AND/OR)
   clause: 'NA' | 'AND' | 'OR'; // (isGroupTF == true) Controls the AND/OR selector for the UI side ('NA' used for testing, should not be used in actual practice)
   dataField?: IDataField; // (!isGroupTF) This is the current filter's dataField value
   condition?: Condition; // (!isGroupTF) This is the current filter's condition value
   value: any; // (!isGroupTF) This is the current filter's value
   value2: any; // (!isGroupTF) This is the current filter's value2
-  subFilters: Partial<Filter>[]; // (isGroupTF == true) The subFilters array contains all 
-  boost: number; // Elastic specific property for boosting a specific filter's priority (1-10, defaulted at 5)
-  slop: number; // Elastic specific property for allowing looser filtering based on the conditional property (0-10, defaulted at 1)
+  subFilters: Partial<Filter>[]; // (isGroupTF == true) The subFilters array contains all children to the current filter (rules or rule sets beneath the current rule set)
+  boost: number; // Elastic specific property for boosting a specific filter's priority (1-10, defaulted at 5). Not required but added for future expansion
+  slop: number; // Elastic specific property for allowing looser filtering based on the conditional property (0-10, defaulted at 1). Not required but added for future expansion
 }
 ```
 
@@ -189,7 +189,7 @@ class Filter {
 ```ts
 interface IDataField {
   text: string; // The text that the users will see in the data field dropdown
-  type: 'array' | 'string' | 'number' | 'date' | 'boolean' | 'json'; // Determines the available conditions for the data field
+  type: 'array' | 'string' | 'number' | 'date' | 'boolean' | 'json'; // Determines which conditions will show for this specific data field
   fieldName: string; // Column name reference field for the database
 }
 ```
@@ -199,8 +199,8 @@ interface IDataField {
 ```ts
 class Condition {
   text: string; // The text that the users will see in the conditional dropdown
-  shortCode: string; // Short codes for referencing within the API/DB (rather than use "Less than or equal", we use "lte", etc.)
-  usedFor: string[]; // Determines what dataField types that can use this condition (don't need "Less than or equal" for a boolean dataField)
+  shortCode: string; // Short hand codes for referencing within the API/DB (rather than use "Less than or equal", you will see "lte", etc.)
+  usedFor: string[]; // Determines what dataField types that can use this condition (don't need "Less than or equal" for a boolean type dataField)
   usesValue2?: boolean; // Tells the UI whether to display the 2nd value box or not, useful for using "Between" or "Not Between" comparators
   staticValue?: any; // If there is a static value that needs to be used, such as for the condition "empty/null" or "not empty/null", you don't actually need a value, but you need the value field to be filled with something (true/false/'')
 }
@@ -210,19 +210,20 @@ class Condition {
 
 ```ts
 export interface IElasticFilter {
-  dataField?: string;
-  dataFields?: string[];
-  condition?: string;
-  value?: string;
-  value2?: string;
-  boost?: number;
-  slop?: number;
-  multiField?: string;
+  dataField?: string; // Filled with dataField value
+  dataFields?: string[]; // TBD (used for testing)
+  condition?: string; // Filled with condition value
+  value?: string; // Filled with filter value
+  value2?: string; // Filled with filter value2
+  boost?: number; // Boost value
+  slop?: number; // Slop value
+  multiField?: string; // TBD (used for testing)
 }
 
 export interface IElasticFilterGroup extends IElasticFilter {
-  filters: IElasticFilter[];
-  clause: ElasticFilterClause;
+  // Used in place of IElasticFilter when isGroupTF == true
+  filters: IElasticFilter[]; // child filters
+  clause: ElasticFilterClause; // clause value ('AND'/'OR')
 }
 
 export enum ElasticFilterClause {
