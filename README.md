@@ -1,0 +1,1 @@
+This is the README for the query-builder-app (in-app testing suite). To view the code and the README for the actual NGX-Query-Builder component, click [here](https://github.com/mymo689/ngx-query-builder/tree/dev/projects/ngx-query-builder).
