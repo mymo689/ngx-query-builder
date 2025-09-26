@@ -73,10 +73,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "ngx-query-builder-app:build:production"
+              "buildTarget": "ngx-query-builder-app:build:production"
             },
             "development": {
-              "browserTarget": "ngx-query-builder-app:build:development"
+              "buildTarget": "ngx-query-builder-app:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -84,7 +84,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "ngx-query-builder-app:build"
+            "buildTarget": "ngx-query-builder-app:build"
           }
         },
         "test": {
