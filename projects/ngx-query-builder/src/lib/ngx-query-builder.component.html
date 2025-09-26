@@ -1,230 +1,221 @@
 @if (filter) {
-  <mat-card class="mt-1 mb-1 pb-0" [ngClass]="{'even': (filter.filterLevel! % 2) === 0, 'child-card': filter.filterLevel! >= 2}">
-    <div class="row">
-      @if (filter.isGroupTF) {
-        <div class="col-auto p-0 toggle-column" [attr.and]="filter.clause === 'AND' ? '' : null">
-          <div class="row h-100">
-            <div class="col-auto">
-              <div class="row h-100 align-items-center">
-                <div class="col">
-                  <mat-radio-group [(ngModel)]="filter.clause" (change)="storeFormValues()">
-                    <mat-radio-button value="AND">
-                      AND
-                    </mat-radio-button>
-                    <mat-radio-button value="OR">
-                      OR
-                    </mat-radio-button>
-                  </mat-radio-group>
-                </div>
-              </div>
+<mat-card class="mt-1 mb-1 pb-0" [ngClass]="{'even': (filter.filterLevel! % 2) === 0, 'child-card': filter.filterLevel! >= 2}">
+  <div class="row">
+    @if (filter.isGroupTF) {
+    <div class="col-auto p-0 toggle-column" [attr.and]="filter.clause === 'AND' ? '' : null">
+      <div class="row h-100">
+        <div class="col-auto">
+          <div class="row h-100 align-items-center">
+            <div class="col">
+              <mat-radio-group [(ngModel)]="filter.clause" (change)="storeFormValues()">
+                <mat-radio-button value="AND">
+                  AND
+                </mat-radio-button>
+                <mat-radio-button value="OR">
+                  OR
+                </mat-radio-button>
+              </mat-radio-group>
             </div>
           </div>
-        </div>
-      }
-      <ng-container [formGroup]="filterForm">
-        @if (!filter.isGroupTF) {
-          <div class="col-auto">
-            <mat-form-field appearance="fill">
-              <mat-label>Data Field</mat-label>
-              <mat-select formControlName="dataField" (selectionChange)="dataFieldUpdated($event.value)" [compareWith]="compareFn">
-                @for (option of dataFieldList; track option) {
-                  <mat-option
-                    [value]="option">
-                    {{option.text}}
-                  </mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          </div>
-        }
-        @if (!filter.isGroupTF && filter.dataField) {
-          <div class="col-auto">
-            <mat-form-field appearance="fill">
-              <mat-label>Condition</mat-label>
-              <mat-select formControlName="condition" (selectionChange)="conditionUpdated()" [compareWith]="compareFn">
-                @for (option of currentConditionList; track option) {
-                  <mat-option
-                    [value]="option">
-                    {{option.text}}
-                  </mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          </div>
-        }
-        @if (!filter.isGroupTF && filter.dataField && filter.condition && filter.condition.staticValue === undefined) {
-          <div class="col-auto">
-            @switch (filter.dataField?.type) {
-              @case ('array') {
-                <mat-form-field appearance="fill">
-                  <mat-label>Value</mat-label>
-                  <input matInput formControlName="value" (blur)="storeFormValues()" type="text"/>
-                </mat-form-field>
-              }
-              @case ('string') {
-                <mat-form-field appearance="fill">
-                  <mat-label>Value</mat-label>
-                  <input matInput formControlName="value" (blur)="storeFormValues()" type="text"/>
-                </mat-form-field>
-              }
-              @case ('number') {
-                <mat-form-field appearance="fill">
-                  <mat-label>Value</mat-label>
-                  <input matInput formControlName="value" (blur)="storeFormValues()" type="number" class="no-spinners"/>
-                </mat-form-field>
-              }
-              @case ('date') {
-                <mat-form-field appearance="fill">
-                  <mat-label>{{filter.condition?.usesValue2! ? 'Start Date' : 'Date'}}</mat-label>
-                  <input matInput formControlName="value" (blur)="storeFormValues()" type="date"/>
-                </mat-form-field>
-              }
-              @case ('boolean') {
-                <mat-form-field appearance="fill">
-                  <mat-label>Value</mat-label>
-                  <mat-select formControlName="value" (selectionChange)="storeFormValues()">
-                    <mat-option [value]="true">
-                      True
-                    </mat-option>
-                    <mat-option [value]="false">
-                      False
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              }
-              @case ('json') {
-                <mat-form-field appearance="fill">
-                  <mat-label>Value</mat-label>
-                  <input matInput formControlName="value" (blur)="storeFormValues()" type="text"/>
-                </mat-form-field>
-              }
-            }
-          </div>
-        }
-        @if (!filter.isGroupTF && filter.dataField && filter.condition && filter.condition?.usesValue2) {
-          <div class="col-auto">
-            @switch (filter.dataField?.type) {
-              @case ('array') {
-                <mat-form-field appearance="fill">
-                  <mat-label>Value 2</mat-label>
-                  <input matInput formControlName="value2" (blur)="storeFormValues()" type="text"/>
-                </mat-form-field>
-              }
-              @case ('string') {
-                <mat-form-field appearance="fill">
-                  <mat-label>Value 2</mat-label>
-                  <input matInput formControlName="value2" (blur)="storeFormValues()" type="text"/>
-                </mat-form-field>
-              }
-              @case ('number') {
-                <mat-form-field appearance="fill">
-                  <mat-label>Value 2</mat-label>
-                  <input matInput formControlName="value2" (blur)="storeFormValues()" type="number" class="no-spinners"/>
-                </mat-form-field>
-              }
-              @case ('date') {
-                <mat-form-field appearance="fill">
-                  <mat-label>End Date</mat-label>
-                  <input matInput formControlName="value2" (blur)="storeFormValues()" type="date"/>
-                </mat-form-field>
-              }
-              @case ('boolean') {
-                <mat-form-field appearance="fill">
-                  <mat-label>Value 2</mat-label>
-                  <mat-select formControlName="value" (selectionChange)="storeFormValues()">
-                    <mat-option [value]="true">
-                      True
-                    </mat-option>
-                    <mat-option [value]="false">
-                      False
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              }
-              @case ('json') {
-                <mat-form-field appearance="fill">
-                  <mat-label>Value 2</mat-label>
-                  <input matInput formControlName="value2" (blur)="storeFormValues()" type="text"/>
-                </mat-form-field>
-              }
-            }
-          </div>
-        }
-      </ng-container>
-      <div class="col-auto pb-2">
-        <div class="row justify-content-end align-items-center h-100">
-          @if (filter.isGroupTF) {
-            <div class="col-auto">
-              <button mat-stroked-button color="primary" (click)="addFilterToList(false)">
-                Add Rule
-              </button>
-            </div>
-          }
-          @if (filter.isGroupTF) {
-            <div class="col-auto">
-              <button mat-stroked-button color="accent" (click)="addFilterToList(true)">
-                Add Group
-              </button>
-            </div>
-          }
-          @if (filter.filterLevel === 1) {
-            <div class="col-auto">
-              <button mat-stroked-button color="warn" (click)="resetFilter()">
-                Reset Entire Filter
-              </button>
-            </div>
-          }
-          @if (filter.filterLevel! >= 2) {
-            <div class="col-auto">
-              <button mat-stroked-button color="warn" [ngClass]="{'mb-4': !filter.isGroupTF }" (click)="filterDeleted.emit(filter.id)">
-                Delete {{filter.isGroupTF ? 'Group' : 'Rule'}}
-              </button>
-            </div>
-          }
         </div>
       </div>
     </div>
-    @if (filter.isGroupTF && filter.subFilters!.length === 0) {
-      <div class="row">
-        &nbsp;
-      </div>
     }
-    @for (filter of filter.subFilters; track filter; let last = $last) {
-      <div class="row child-filter-row" [ngStyle]="{'padding-bottom': last ? '14px' : '0px'}">
-        <div class="col-auto p-0">
-          <div class="row h-100">
-            <div class="col-auto content-end p-0">
-              <div [ngClass]="{'v-bar': !last, 'half-v-bar': last}"></div>
-            </div>
-            <div class="col-auto p-0">
-              <div class="row h-100 align-items-center">
-                <div class="h-bar"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col p-0 mt-2">
-          <ngx-qb
-            [filter]="filter"
-            [dataFieldList]="dataFieldList"
-            [maxFilterDepth]="maxFilterDepth"
-            [overrideConditionList]="overrideConditionList"
-            [newConditionList]="newConditionList"
-            (filterChanged)="updateFilter($event)"
-            (filterDeleted)="deleteFilter($event)"
-            (maxDepthReached)="maxDepthReached.emit()">
-          </ngx-qb>
-        </div>
+    <ng-container [formGroup]="filterForm">
+      @if (!filter.isGroupTF) {
+      <div class="col-auto">
+        <mat-form-field appearance="fill">
+          <mat-label>Data Field</mat-label>
+          <mat-select formControlName="dataField" (selectionChange)="dataFieldUpdated($event.value)" [compareWith]="compareFn">
+            @for (option of dataFieldList; track option) {
+            <mat-option [value]="option">
+              {{option.text}}
+            </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
       </div>
-    }
-    @if (filter.filterLevel === 1) {
-      <div class="row pb-2 justify-content-between">
-        <div class="col mb-1">
-          <button mat-stroked-button color="primary" (click)="executeQuery()">
-            Execute Query
+      }
+      @if (!filter.isGroupTF && filter.dataField) {
+      <div class="col-auto">
+        <mat-form-field appearance="fill">
+          <mat-label>Condition</mat-label>
+          <mat-select formControlName="condition" (selectionChange)="conditionUpdated()" [compareWith]="compareFn">
+            @for (option of currentConditionList; track option) {
+            <mat-option [value]="option">
+              {{option.text}}
+            </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      }
+      @if (!filter.isGroupTF && filter.dataField && filter.condition && filter.condition.staticValue === undefined) {
+      <div class="col-auto">
+        @switch (filter.dataField?.type) {
+        @case ('array') {
+        <mat-form-field appearance="fill">
+          <mat-label>Value</mat-label>
+          <input matInput formControlName="value" (blur)="storeFormValues()" type="text" />
+        </mat-form-field>
+        }
+        @case ('string') {
+        <mat-form-field appearance="fill">
+          <mat-label>Value</mat-label>
+          <input matInput formControlName="value" (blur)="storeFormValues()" type="text" />
+        </mat-form-field>
+        }
+        @case ('number') {
+        <mat-form-field appearance="fill">
+          <mat-label>Value</mat-label>
+          <input matInput formControlName="value" (blur)="storeFormValues()" type="number" class="no-spinners" />
+        </mat-form-field>
+        }
+        @case ('date') {
+        <mat-form-field appearance="fill">
+          <mat-label>{{filter.condition?.usesValue2! ? 'Start Date' : 'Date'}}</mat-label>
+          <input matInput formControlName="value" (blur)="storeFormValues()" type="date" />
+        </mat-form-field>
+        }
+        @case ('boolean') {
+        <mat-form-field appearance="fill">
+          <mat-label>Value</mat-label>
+          <mat-select formControlName="value" (selectionChange)="storeFormValues()">
+            <mat-option [value]="true">
+              True
+            </mat-option>
+            <mat-option [value]="false">
+              False
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        }
+        @case ('json') {
+        <mat-form-field appearance="fill">
+          <mat-label>Value</mat-label>
+          <input matInput formControlName="value" (blur)="storeFormValues()" type="text" />
+        </mat-form-field>
+        }
+        }
+      </div>
+      }
+      @if (!filter.isGroupTF && filter.dataField && filter.condition && filter.condition?.usesValue2) {
+      <div class="col-auto">
+        @switch (filter.dataField?.type) {
+        @case ('array') {
+        <mat-form-field appearance="fill">
+          <mat-label>Value 2</mat-label>
+          <input matInput formControlName="value2" (blur)="storeFormValues()" type="text" />
+        </mat-form-field>
+        }
+        @case ('string') {
+        <mat-form-field appearance="fill">
+          <mat-label>Value 2</mat-label>
+          <input matInput formControlName="value2" (blur)="storeFormValues()" type="text" />
+        </mat-form-field>
+        }
+        @case ('number') {
+        <mat-form-field appearance="fill">
+          <mat-label>Value 2</mat-label>
+          <input matInput formControlName="value2" (blur)="storeFormValues()" type="number" class="no-spinners" />
+        </mat-form-field>
+        }
+        @case ('date') {
+        <mat-form-field appearance="fill">
+          <mat-label>End Date</mat-label>
+          <input matInput formControlName="value2" (blur)="storeFormValues()" type="date" />
+        </mat-form-field>
+        }
+        @case ('boolean') {
+        <mat-form-field appearance="fill">
+          <mat-label>Value 2</mat-label>
+          <mat-select formControlName="value" (selectionChange)="storeFormValues()">
+            <mat-option [value]="true">
+              True
+            </mat-option>
+            <mat-option [value]="false">
+              False
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        }
+        @case ('json') {
+        <mat-form-field appearance="fill">
+          <mat-label>Value 2</mat-label>
+          <input matInput formControlName="value2" (blur)="storeFormValues()" type="text" />
+        </mat-form-field>
+        }
+        }
+      </div>
+      }
+    </ng-container>
+    <div class="col-auto pb-2">
+      <div class="row justify-content-end align-items-center h-100">
+        @if (filter.isGroupTF) {
+        <div class="col-auto">
+          <button mat-stroked-button color="primary" (click)="addFilterToList(false)">
+            Add Rule
           </button>
         </div>
+        }
+        @if (filter.isGroupTF) {
+        <div class="col-auto">
+          <button mat-stroked-button color="accent" (click)="addFilterToList(true)">
+            Add Group
+          </button>
+        </div>
+        }
+        @if (filter.filterLevel === 1) {
+        <div class="col-auto">
+          <button mat-stroked-button color="warn" (click)="resetFilter()">
+            Reset Entire Filter
+          </button>
+        </div>
+        }
+        @if (filter.filterLevel! >= 2) {
+        <div class="col-auto">
+          <button mat-stroked-button color="warn" [ngClass]="{'mb-4': !filter.isGroupTF }" (click)="filterDeleted.emit(filter.id)">
+            Delete {{filter.isGroupTF ? 'Group' : 'Rule'}}
+          </button>
+        </div>
+        }
       </div>
-    }
-  </mat-card>
+    </div>
+  </div>
+  @if (filter.isGroupTF && filter.subFilters!.length === 0) {
+  <div class="row">
+    &nbsp;
+  </div>
+  }
+  @for (filter of filter.subFilters; track filter; let last = $last) {
+  <div class="row child-filter-row" [ngStyle]="{'padding-bottom': last ? '14px' : '0px'}">
+    <div class="col-auto p-0">
+      <div class="row h-100">
+        <div class="col-auto content-end p-0">
+          <div [ngClass]="{'v-bar': !last, 'half-v-bar': last}"></div>
+        </div>
+        <div class="col-auto p-0">
+          <div class="row h-100 align-items-center">
+            <div class="h-bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col p-0 mt-2">
+      <ngx-qb [filter]="filter" [dataFieldList]="dataFieldList" [maxFilterDepth]="maxFilterDepth" [overrideConditionList]="overrideConditionList" [newConditionList]="newConditionList"
+        (filterChanged)="updateFilter($event)" (filterDeleted)="deleteFilter($event)" (maxDepthReached)="maxDepthReached.emit()">
+      </ngx-qb>
+    </div>
+  </div>
+  }
+  @if (filter.filterLevel === 1) {
+  <div class="row pb-2 justify-content-between">
+    <div class="col mb-1">
+      <button mat-stroked-button color="primary" (click)="executeQuery()">
+        Execute Query
+      </button>
+    </div>
+  </div>
+  }
+</mat-card>
 }

@@ -4,86 +4,92 @@ import {
   EventEmitter,
   Input,
   OnChanges,
-  OnDestroy,
   OnInit,
   Output,
   SimpleChanges
 } from '@angular/core';
-import { Subscription } from 'rxjs';
 import { Condition } from './models/condition.model';
 import { IDataField } from './models/data-field.model';
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ElasticFilterClause, IElasticFilterGroup } from './models/elastic-filter.model';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatButton } from '@angular/material/button';
+import { MatCard } from '@angular/material/card';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
+import { MatOption, MatSelect } from '@angular/material/select';
+import { CommonModule } from '@angular/common';
 
 const _originalConditionList: Condition[] = [
   {
     text: 'contains',
     shortCode: 'cn',
-    usedFor: ['array','string']
+    usedFor: ['array', 'string']
   },
   {
     text: 'does not contain',
     shortCode: 'ncn',
-    usedFor: ['array','string']
+    usedFor: ['array', 'string']
   },
   {
     text: 'equal to',
     shortCode: 'eq',
-    usedFor: ['array','string','number','date','boolean']
+    usedFor: ['array', 'string', 'number', 'date', 'boolean']
   },
   {
     text: 'not equal to',
     shortCode: 'neq',
-    usedFor: ['array','string','number','date','boolean']
+    usedFor: ['array', 'string', 'number', 'date', 'boolean']
   },
   {
     text: 'greater than',
     shortCode: 'gt',
-    usedFor: ['number','date']
+    usedFor: ['number', 'date']
   },
   {
     text: 'less than',
     shortCode: 'lt',
-    usedFor: ['number','date']
+    usedFor: ['number', 'date']
   },
   {
     text: 'greater than or equal',
     shortCode: 'gte',
-    usedFor: ['number','date']
+    usedFor: ['number', 'date']
   },
   {
     text: 'less than or equal',
     shortCode: 'lte',
-    usedFor: ['number','date']
+    usedFor: ['number', 'date']
   },
   {
     text: 'empty',
     shortCode: 'em',
-    usedFor: ['array','string','date'],
+    usedFor: ['array', 'string', 'date'],
     staticValue: ''
   },
   {
     text: 'not empty',
     shortCode: 'nem',
-    usedFor: ['array','string','date'],
+    usedFor: ['array', 'string', 'date'],
     staticValue: ''
   },
   {
     text: 'between',
     shortCode: 'bt',
-    usedFor: ['number','date'],
+    usedFor: ['number', 'date'],
     usesValue2: true
   },
   {
     text: 'not between',
     shortCode: 'nbt',
-    usedFor: ['number','date'],
+    usedFor: ['number', 'date'],
     usesValue2: true
   },
   {
     text: 'query string',
     shortCode: 'qs',
-    usedFor: ['array','string']
+    usedFor: ['array', 'string']
   },
   {
     text: 'starts with',
@@ -108,14 +114,26 @@ const _originalConditionList: Condition[] = [
 ];
 
 @Component({
-    selector: 'ngx-qb',
-    templateUrl: 'ngx-query-builder.component.html',
-    styleUrls: ['ngx-query-builder.component.scss'],
-    standalone: false
+  selector: 'ngx-qb',
+  templateUrl: 'ngx-query-builder.component.html',
+  styleUrls: ['ngx-query-builder.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatButton,
+    MatCard,
+    MatFormField,
+    MatOption,
+    MatLabel,
+    MatInput,
+    MatRadioGroup,
+    MatRadioButton,
+    MatSelect,
+  ]
 })
-export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
-  private subscriptionList = new Subscription();
-
+export class NgxQueryBuilderComponent implements OnInit, OnChanges {
   // Required Inputs
   @Input() dataFieldList: IDataField[] = [];
 
@@ -155,7 +173,7 @@ export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
     if (changes['dataFieldList']?.firstChange) {
       this.fullConditionList = this.overrideConditionList
         ? [...this.newConditionList].sort((a, b) => a.text > b.text ? 1 : 0)
-        : [..._originalConditionList, ...this.newConditionList].sort((a, b) => a.text > b.text ? 1 : 0)
+        : [..._originalConditionList, ...this.newConditionList].sort((a, b) => a.text > b.text ? 1 : 0);
       if (this.filter.dataField) {
         this.currentConditionList = this.getFilteredCondition(this.filter.dataField.type);
       }
@@ -252,7 +270,7 @@ export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
   public updateFilter(updatedFilter: Filter): void {
     this.storeFormValues();
     const oldFilterIndex = this.filter.subFilters!.findIndex(filter => filter.id === updatedFilter.id);
-    this.filter.subFilters![oldFilterIndex] = {...updatedFilter};
+    this.filter.subFilters![oldFilterIndex] = { ...updatedFilter };
     this.filterChanged.emit(this.getFilterValue());
   }
 
@@ -295,9 +313,5 @@ export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
   public resetFilter(): void {
     this.filter = Filter.NewTopLevelFilter;
     this.filterReset.emit();
-  }
-
-  public ngOnDestroy(): void {
-    this.subscriptionList.unsubscribe();
   }
 }

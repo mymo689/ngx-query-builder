@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
-import { Condition, Filter, IDataField, IElasticFilterGroup } from 'ngx-query-builder';
+import { Condition, Filter, IDataField, IElasticFilterGroup, NgxQueryBuilderComponent } from 'ngx-query-builder';
 
 @Component({
-    selector: 'ngx-qb-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.scss'],
-    standalone: false
+  selector: 'ngx-qb-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
+  imports: [
+    NgxQueryBuilderComponent
+  ]
 })
 export class AppComponent {
   filter: Partial<Filter> = {
@@ -20,7 +22,7 @@ export class AppComponent {
   newConditionList: Condition[] = [{
     text: 'Test Condition',
     shortCode: 'tst',
-    usedFor: ['string','date'],
+    usedFor: ['string', 'date'],
     usesValue2: true
   }];
   dataFieldList: IDataField[] = [
@@ -44,7 +46,7 @@ export class AppComponent {
       type: 'number',
       fieldName: 'copiesSold'
     }
-  ]
+  ];
 
   public filterChanged(filter: Filter): void {
     console.log('FC', filter);

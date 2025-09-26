@@ -6,42 +6,23 @@
 
 ## Overview
 
-The NgxQueryBuilder `(ngx-qb)` is an importable Angular 13 component designed to quickly and easily create a cascading filter for queries or other rule sets. It was modeled after the [jQuery QueryBuilder](https://querybuilder.js.org/) to be a more Angular focused and purpose-built solution.
+The NgxQueryBuilder `(ngx-qb)` is an importable Angular component designed to quickly and easily create a cascading filter for queries or other rule sets. It was modeled after the [jQuery QueryBuilder](https://querybuilder.js.org/) to be a more Angular focused and purpose-built solution.
 
 ## Sample Usage
 
-```ts
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { NgxQueryBuilderModule } from 'ngx-query-builder';
-
-@NgModule({
-  declarations: [
-    AppComponent
-  ],
-  imports: [
-    BrowserModule,
-    BrowserAnimationsModule,
-    AppRoutingModule,
-    NgxQueryBuilderModule
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
-})
-export class AppModule { }
-```
+Note: Updated for Ng20
 
 ```ts
 import { Component } from '@angular/core';
-import { Filter, IDataField } from 'ngx-query-builder';
+import { Condition, Filter, IDataField, IElasticFilterGroup, NgxQueryBuilderComponent } from 'ngx-query-builder';
 
 @Component({
-  selector: 'app-root',
+  selector: 'ngx-qb-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
+  imports: [
+    NgxQueryBuilderComponent
+  ]
 })
 export class AppComponent {
   filter: Partial<Filter> = {
@@ -51,26 +32,12 @@ export class AppComponent {
     clause: 'AND',
     value: null,
     value2: null,
-    subFilters: [
-      {
-        boost: 1,
-        clause: 'AND',
-        condition: {text: 'contains', shortCode: 'cn', usedFor: ['array', 'string']},
-        dataField: {text: 'Author', type: 'string', fieldName: 'author'},
-        filterLevel: 2,
-        id: 1649459442150,
-        isGroupTF: false,
-        slop: 5,
-        subFilters: [],
-        value: 'Smith',
-        value2: null,
-      }
-    ]
+    subFilters: []
   };
   newConditionList: Condition[] = [{
     text: 'Test Condition',
     shortCode: 'tst',
-    usedFor: ['string','date'],
+    usedFor: ['string', 'date'],
     usesValue2: true
   }];
   dataFieldList: IDataField[] = [
@@ -94,7 +61,7 @@ export class AppComponent {
       type: 'number',
       fieldName: 'copiesSold'
     }
-  ]
+  ];
 
   public filterChanged(filter: Filter): void {
     console.log('FC', filter);
@@ -237,50 +204,18 @@ export enum ElasticFilterClause {
 
 | ngx-qb   | Angular   |
 | -------- | --------- |
-| ^1.0.0   | >= 13.x   |
+| ^1.0.x   | >= 13.x   |
+| ^1.1.x   | >= 20.x   |
 
 ## Non-included Dependencies
 
 1. Bootstrap: Bootstrap is heavily relied upon for nearly the entire HTML portion, please ensure that the CSS file `bootstrap.min.css` from at least version 5 of `bootstrap` is included. This was intentionally not included in the package in order to make the package much smaller.
-2. BrowserAnimationsModule: Must include at AppModule level.
+2. BrowserAnimationsModule: Must include at AppModule level for version 1.0.x. This should not be an issue for version 1.1.x.
 
 ## Common Issues
 
 1. Not including BrowserAnimationsModule in your module. Make sure that your AppModule, or containing module at least, has the BrowserAnimationsModule imported.
    - Note: this is specifically for using the built-in MatInput and MatButton elements. Your custom elements may or may not need this additional dependency.
-
-## Upgrades
-
-### Actively Planned Upgrades
-
-- [X] Create an emitter for the maxFilterDepth reached event. -- Added v0.0.4: 7 Apr 2022
-- [ ] Provide more detailed instructions for how to install, import, and use the module.
-- [X] Create a working [demo](#demo) to be hosted online and linked to within the README file. (Stackblitz or otherwise) -- Added v1.0.1: 8 Apr 2022
-- [X] Allow for customized condition fields, either adding to the existing list or replacing entirely. -- Added v0.0.9: 8 Apr 2022
-- [ ] Allow for adding to the IDataField type options for customized options. (More than just string, number, boolean, etc)
-- [ ] In accordance with the IDataField types above, allow for custom HTML to be injected for custom type options.
-- [ ] Allow for custom buttons to be passed into the component via [content projection](https://angular.io/guide/content-projection).
-- [ ] Allow for other custom elements to be passed in via [content projection](https://angular.io/guide/content-projection).
-- [ ] Add to the FAQ if/when it becomes necessary.
-
-### Potential Upgrades
-
-- [ ] \(Optional) Remove bootstrap dependency (would be nice but would require an entire overhaul and/or a LOT of custom CSS)
-- [ ] \(Optional) Add unit testing. (This will be the very last thing I do, if I ever even do it, as the NgxQB isn't a very large component and unit testing isn't really necessary at this time.)
-
-### Things I Will NOT Be Adding
-
-| | |
-|-|-|
-| :no_entry: | More cowbell :cow::bell: |
-
----
-
-## FAQ
-
-This is a brand new component as of 6 April 2022, no FAQs yet!
-
----
 
 ## License
 
@@ -299,3 +234,5 @@ My thanks go out to the owner(s) of the [jQuery QueryBuilder](https://querybuild
 - Definitely thanks to [Zach](https://github.com/zachappel) for inspiring me to build the component in the first place. He built the original consuming API and provided functional testing to ensure the component works as intended.
 
 - Thanks also to [Jay](https://github.com/daBishMan) for inspiring me to actually pull out the component from the project that I had originally built it in and create a standalone importable library from it. As my first published NPM library, I definitely had to step out of my comfort zone to learn and do everything required for this but it was a great process to learn.
+
+- Thanks to [VIvek kale](https://github.com/vivekk2706) for requesting a patch to support Angular 19. Slighted revived this old project.
