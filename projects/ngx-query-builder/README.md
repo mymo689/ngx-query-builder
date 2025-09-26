@@ -235,4 +235,4 @@ My thanks go out to the owner(s) of the [jQuery QueryBuilder](https://querybuild
 
 - Thanks also to [Jay](https://github.com/daBishMan) for inspiring me to actually pull out the component from the project that I had originally built it in and create a standalone importable library from it. As my first published NPM library, I definitely had to step out of my comfort zone to learn and do everything required for this but it was a great process to learn.
 
-- Thanks to [VIvek kale](https://github.com/vivekk2706) for requesting a patch to support Angular 19. Slighted revived this old project.
+- Thanks to [VIvek kale](https://github.com/vivekk2706) for requesting a patch to support Angular 19. Slightly revived this old project.
