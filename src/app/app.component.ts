@@ -4,7 +4,6 @@ import { Condition, Filter, IDataField, IElasticFilterGroup, NgxQueryBuilderComp
 @Component({
   selector: 'ngx-qb-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
   imports: [
     NgxQueryBuilderComponent
   ]
