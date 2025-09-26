@@ -12,7 +12,7 @@ import {
 import { Subscription } from 'rxjs';
 import { Condition } from './models/condition.model';
 import { IDataField } from './models/data-field.model';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { ElasticFilterClause, IElasticFilterGroup } from './models/elastic-filter.model';
 
 const _originalConditionList: Condition[] = [
@@ -134,11 +134,11 @@ export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
 
   private fullConditionList: Condition[] = [];
   public currentConditionList: Condition[] = [];
-  public filterForm = new FormGroup({
-    dataField: new FormControl(null, [Validators.required]),
-    condition: new FormControl(null, [Validators.required]),
-    value: new FormControl(null, [Validators.required]),
-    value2: new FormControl(null),
+  public filterForm = new UntypedFormGroup({
+    dataField: new UntypedFormControl(null, [Validators.required]),
+    condition: new UntypedFormControl(null, [Validators.required]),
+    value: new UntypedFormControl(null, [Validators.required]),
+    value2: new UntypedFormControl(null),
   });
   public filterReady = false;
 
