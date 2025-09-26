@@ -108,9 +108,10 @@ const _originalConditionList: Condition[] = [
 ];
 
 @Component({
-  selector: 'ngx-qb',
-  templateUrl: 'ngx-query-builder.component.html',
-  styleUrls: ['ngx-query-builder.component.scss']
+    selector: 'ngx-qb',
+    templateUrl: 'ngx-query-builder.component.html',
+    styleUrls: ['ngx-query-builder.component.scss'],
+    standalone: false
 })
 export class NgxQueryBuilderComponent implements OnInit, OnChanges, OnDestroy {
   private subscriptionList = new Subscription();

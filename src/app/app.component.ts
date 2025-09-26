@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 import { Condition, Filter, IDataField, IElasticFilterGroup } from 'ngx-query-builder';
 
 @Component({
-  selector: 'ngx-qb-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+    selector: 'ngx-qb-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss'],
+    standalone: false
 })
 export class AppComponent {
   filter: Partial<Filter> = {
